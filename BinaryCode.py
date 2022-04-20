@@ -18,10 +18,18 @@ class BinaryCode:
   def numCorrectableErrors(self) -> int:
     return self.numDetectableErrors() // 2
 
-  def detectErrors():
-    pass
+# assume triple repetition encoding
+  def detectErrors(self):
+    errors = []
+    for codeword in self.codewords:
+      step = self.__length / 3
+      repetitions = {codeword[i:i+step] for i in range(0, self.__length, step)}
+      if len(repetitions) > 1:
+        errors.append(codeword)
+    return errors 
 
   def correctErrors():
+     
     pass
 
   def writeCorrected(self):
