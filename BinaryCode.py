@@ -1,13 +1,19 @@
 from os import path
 
+'''
+# Daniel Mogil and Jacob Creasy
+
+* assume triple repetition encoding
+'''
+
 class BinaryCode:
   codewords: list[str] = []
   __fileName: str
   __length: int
   
-  def __init__(self, file_path: str):
+  def __init__(self, file_path: str, delimiter = ' '):
     with open(file_path) as f: 
-      self.codewords = f.read().split()
+      self.codewords = f.read().strip().split(delimiter)
       self.__fileName = path.basename(file_path)
       self.__length = len(self.codewords[0])
   
@@ -18,24 +24,25 @@ class BinaryCode:
   def numCorrectableErrors(self) -> int:
     return self.numDetectableErrors() // 2
 
-# assume triple repetition encoding
-  def detectErrors(self):
+  def detectErrors(self) -> list[tuple]:
     errors = []
-    for codeword in self.codewords:
-      step = self.__length / 3
-      repetitions = {codeword[i:i+step] for i in range(0, self.__length, step)}
+    for i, codeword in enumerate(self.codewords):
+      repetitions = set(self.__splitCodeword(codeword))
       if len(repetitions) > 1:
-        errors.append(codeword)
-    return errors 
+        errors.append((i, codeword))
+    return errors
 
-  def correctErrors():
-     
-    pass
+  def correctErrors(self) -> None:
+    errors = self.detectErrors()
+    for i, error in errors:
+      repetitions = self.__splitCodeword(error)
+      corrected = max(repetitions, key = repetitions.count) * 3
+      self.codewords[i] = corrected
 
   def writeCorrected(self):
     self.correctErrors()
     with open(f'./output/CORRECTED_{self.__fileName}', 'w') as f:
-      f.write(self.codewords)
+      [f.write(codeword + " ") for codeword in self.codewords]
 
   def getHammingDistance(self, i, j) -> int:
     self.__assertDistanceConditions()
@@ -56,6 +63,11 @@ class BinaryCode:
         if hammingDistance < min:
           min = hammingDistance
     return min
+
+  def __splitCodeword(self, codeword) -> list[str]:
+      step = int(self.__length / 3)
+      repetitions = [codeword[i:i+step] for i in range(0, self.__length, step)]  
+      return repetitions
 
   def __assertDistanceConditions(self):
     try:
