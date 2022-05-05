@@ -1,5 +1,7 @@
 from socket import socket, AF_INET, SOCK_STREAM
 
+from HammingCode import HammingCode
+
 class Receiver:
   __socket = socket
 
@@ -7,6 +9,12 @@ class Receiver:
     self.__socket(AF_INET, SOCK_STREAM)
     self.__socket.connect((TCP_IP, TCP_PORT))
 
+  def read() -> str:
+    
+    code = HammingCode()
+    return code.decode()
+    
   def writeToFile(self, filepath: str):
-    with open(filepath, 'wb') as f:
-      pass
+    bin = self.read()
+    with open(filepath, 'w') as f:
+      f.write(bin)
