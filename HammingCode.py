@@ -1,37 +1,55 @@
-from functools import reduce
+from numpy import matmul, concatenate, vstack, identity
+from math import floor, log2
 
 class HammingCode:
-  __chunks: list[str]
-
+  __bin: str
+  __chunks: list[tuple(list, int)]
+  
   def __init__(self, bin: str):
-    self.__split(bin)
-
-  @staticmethod
-  def flipBit(bit: str) -> str:
-    return '1' if bit == '0' else '0'
+    self.__bin = bin
 
   def encode(self) -> str:
-    pass
+    self.__split(self.__bin, True)
+    return self.__applyMatrix(self.__getGeneratorMatrix)
 
   def decode(self) -> str:
-    corrected = []
-    for chunk in self.__chunks:
-      error = reduce(lambda x, y: x ^ y, [i for i, bit in enumerate(bin(chunk)) if bit])
-      if error: 
-        if chunk.count('1') % 2 == 0: self.__log(chunk)
-        else: chunk[error] = HammingCode.flipBit(chunk[error])
-      corrected.append(chunk)
-    return ''.join(corrected)
-      
-  def __split(self, bin: str) -> None:
-    size = [1, 4, 11, 26, 57, 120, 247]
-    while len(bin) > 0:
-      while len(bin) // size[-1] == 0: 
-        size.pop(-1)
-      self.__chunks.append(bin[:size[-1]])
-      bin = bin[size[-1]:]
+    self.__split(self.__bin)
+    return self.__applyMatrix(self.__getParityCheckMatrix)
 
-  def __log(self, chunk: str):
-    with open('./log.txt', 'a') as f:
-      f.write(f'Cannot correct byte-chunk, more than 1 error detected:\n{chunk}')
-    print('Log written')
+  def flipBit(self, bit: str) -> str:
+    return '1' if bit == '0' else '0'
+
+  def __applyMatrix(self, matrix: function) -> str:
+    code = ''
+    for chunk in self.__chunks:
+      code += str(matmul(vstack(chunk), matrix(chunk)).item())
+    return code
+
+  def __getGeneratorMatrix(self, chunk):
+    P, I = self.__getParityMatrix(chunk[0]), identity(len(chunk[0]) + chunk[1], dtype=int)
+    return concatenate((I, P))
+ 
+  def __getParityCheckMatrix(self, chunk):
+    P, I = self.__getParityMatrix(chunk[0]), identity(chunk[1], dtype=int)
+    return concatenate((P, I))
+
+  def __getParityMatrix(self, chunk):
+    P, dimensions = [], chunk[1]
+    for bit in range(1, dimensions ** 2 + 1):
+      if not float.is_integer(log2(bit)):
+        P.append([int(i) for i in format(bit, f'0{dimensions}b')])
+    return vstack(P).T
+
+  def __split(self, bin, dataBitsOnly = False):
+    codeLen = len(bin)
+    if codeLen == 0: 
+      return
+    numParity = self.__greatestPowerOf2(codeLen)
+    numTot = 2 ** numParity
+    size = numTot - numParity if dataBitsOnly else numTot
+    chunk = [int(bit) for bit in bin[:size]]
+    self.__chunks.append((chunk, numParity))
+    self.__split(bin[size:], dataBitsOnly)
+      
+  def __greatestPowerOf2(self, n):
+    return floor(log2(n))
