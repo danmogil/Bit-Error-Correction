@@ -1,15 +1,14 @@
-from socket import socket, AF_INET, SOCK_STREAM
+from socket import AF_INET, SOCK_STREAM
 from HammingCode import HammingCode
+from TCPSocket import TCPSocket
 
-class Receiver:
-  __socket = socket
+class Receiver(TCPSocket):
 
   def __init__(self, TCP_IP: str, TCP_PORT: int):
-    self.__socket(AF_INET, SOCK_STREAM)
-    self.__socket.connect((TCP_IP, TCP_PORT))
+    self._socket.connect((TCP_IP, TCP_PORT))
 
   def read() -> str:
-    #receive
+    
     code = HammingCode()
     return code.decode()
     
