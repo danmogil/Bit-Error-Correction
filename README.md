@@ -2,7 +2,7 @@
 ### Background -
 [Bit errors](https://en.wikipedia.org/wiki/Error_detection_and_correction) occur when data bits are undesirably flipped during transfer. Causes include *network interference, hardware failure/deterioration, etc.* [Hamming codes](https://en.wikipedia.org/wiki/Hamming_code) are error-correcting codes capable of reversing single-bit errors by padding messages with [parity bits](https://en.wikipedia.org/wiki/Parity_bit). In addition, non-systematic encoding allows Hamming codes' efficiency to grow exponentially as message length increases.
 <br>
-| **Data Bits** | 1 | 4 | 11 | 26 | 57 | 120 | 247 |
+| **Data Bits** <sub>( 2<sup>m</sup> - m - 1 )</sub> | 1 | 4 | 11 | 26 | 57 | 120 | 247 |
 | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
 | **Efficiency** <sub>(Data vs. Total Bits)</sub> | 33% | 57% | 73% | 84% | 91% | 95% | 97% |
 
