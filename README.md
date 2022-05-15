@@ -11,5 +11,5 @@
 ### Product -
 An autoscaling Hamming encoder/decoder to correct single-bit errors while maximizing storage efficiency. Errors are simulated over a TCP transmission and rectified by the receiver. Note: we establish an upper bound of 247 data-bits per chunk (97% efficient) to prevent 2-bit chunk errors.
 <br>
-#### Contributors
+#### Contributors -
 - [Jacob Creasy](https://github.com/Shpoogatz)
