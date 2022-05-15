@@ -1,33 +1,33 @@
-from socket import AF_INET, SOCK_STREAM
+from socket import socket, AF_INET, SOCK_STREAM 
 from random import random
 from HammingCode import HammingCode
-from TCPSocket import TCPSocket
 
-class Transmitter(TCPSocket):
-  BIT_ERROR_RATE = .005
+BIT_ERROR_RATE =  0.05
 
-  def __init__(self, TCP_IP: str, TCP_PORT: int):
-    self._socket.bind((TCP_IP, TCP_PORT))
-    
-  def open(self):
-    self._socket.listen(1)
-    while True:
-      address = self._socket.accept()[1]
-      print(f'New connection: {address}')
-      req = input("Transmit? ( 'y' to continue ) ")
-      if req == 'y': self.__transmit(input('Filepath: '))
-      else: self.close()
-  
-  def __transmit(self, filepath: str):
+def transmit(filepath: str, HOST: str, PORT: int):
+  sock = socket(AF_INET, SOCK_STREAM)
+  sock.bind((HOST, PORT))
+  sock.listen(1)
+  print('Waiting for connection...')
+  while True:
+    connection, address = sock.accept()
+    print(f'New connection: {address}\nTransmitting Data...')
     with open(filepath) as f:
       code = HammingCode(f.read())
       transmission = code.encode()
-      corrupted = self.__simulateErrors(transmission)
-      self._socket.send(corrupted)
-      self.close()
-  
-  def __simulateErrors(self, code):
-    for i in range(len(code)):
-      if random() <= self.BIT_ERROR_RATE:
-        code[i] = HammingCode.flipBit(code[i])
-    return code
+      corrupted = simulateErrors(transmission)
+      connection.send(corrupted.encode())
+    print('Success')
+    connection.close()
+    break
+  sock.close()
+
+def simulateErrors(code: str):
+  ls = list(code)
+  numErrors = 0
+  for i, bit in enumerate(ls):
+    if random() <= BIT_ERROR_RATE:
+      ls[i] = HammingCode.flipBit(bit)
+      numErrors += 1
+  print(f'Generated {numErrors} errors')
+  return ''.join(ls)

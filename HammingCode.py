@@ -11,6 +11,10 @@ class HammingCode:
     self.__bin = bin
     self.__chunks = []
 
+  @staticmethod
+  def flipBit(bit: Union[str, int]) -> str:
+    return '1' if str(bit) == '0' else '0'
+
   def encode(self) -> str:
     self.__split(self.__bin, True)
     code = ''
@@ -35,9 +39,6 @@ class HammingCode:
             break
       decoded += ''.join(map(str, codeword))
     return decoded
-
-  def flipBit(self, bit: Union[str, int]) -> str:
-    return '1' if str(bit) == '0' else '0'
 
   def __getGeneratorMatrix(self, chunk):
     received, numParity = chunk
@@ -72,4 +73,9 @@ class HammingCode:
       for p in count(start=2):
         if 2 ** p - p - 1 > len or p == 9:
           return p - 1
-    return floor(log2(len + 1))
+    upperBound = floor(log2(len + 1))
+    remaining = len - (2 ** upperBound - 1)
+    nextParity = log2(remaining + 1)
+    if nextParity == 1 or not float.is_integer(nextParity):
+      upperBound -= 1
+    return upperBound
